@@ -44,23 +44,23 @@ void init_calendar(calendar_node** root, unsigned short date, unsigned short typ
 
 
 // searches for an element with a specific date and type
-calendar_node* search_date_element(const calendar_node* root, unsigned short date, unsigned short type);
+calendar_node* search_date_element(calendar_node* root, unsigned short date, unsigned short type);
 
 // search function that searches for criteria defined by the user.
 // user must return 1 for found and 0 for not found
-calendar_node* key_search(const calendar_node* root, void* to_find,
-						int (*key)(calendar_node*, void*));
+calendar_node* key_search(calendar_node* root, void* to_find,
+						int (*key)(const calendar_node*, void*));
 
 
 // like key_search but this one makes a dynamic list of all the results
 // returns number of found elements
 int full_key_search(calendar_node* root, void* to_find,
 	calendar_node*** result,
-	int (*key)(calendar_node*, void*));
+	int (*key)(const calendar_node*, void*));
 
 
 // searches for a node inside a specific pathway (year, month, day)
-calendar_node* search_full_date(const calendar_node* root, unsigned short* pathway, unsigned short len);
+calendar_node* search_full_date(calendar_node* root, const unsigned short* pathway, unsigned short len);
 
 
 // adds a sibling sorted by date
@@ -72,7 +72,7 @@ void full_add(calendar_node** root, calendar_node* child, int pathway[3]);
 
 
 // function to find the parent of a node
-calendar_node* get_parent(const calendar_node* root, const calendar_node* child);
+calendar_node* get_parent(calendar_node* root, calendar_node* child);
 
 
 // frees the calendar in the heap

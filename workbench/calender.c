@@ -20,7 +20,7 @@ unsigned int generate_id() {
 }
 
 
-void init_calendar(calendar_node** root, unsigned short date, unsigned short type) {
+void init_calendar(calendar_node** root, const unsigned short date, const unsigned short type) {
 	*root = (calendar_node*)malloc(sizeof(calendar_node));
 	if (*root == NULL) { exit(-1); }
 
@@ -36,7 +36,7 @@ void init_calendar(calendar_node** root, unsigned short date, unsigned short typ
 
 
 // searches for an element with a specific date and type
-calendar_node* search_date_element(const calendar_node* root, unsigned short date, unsigned short type) {
+calendar_node* search_date_element(calendar_node* root, const unsigned short date, const unsigned short type) {
 	// stop condition
 	if (root == NULL) { return NULL; }
 
@@ -57,8 +57,8 @@ calendar_node* search_date_element(const calendar_node* root, unsigned short dat
 
 // search function that searches for criteria defined by the user.
 // user must return 1 for found and 0 for not found
-calendar_node* key_search(const calendar_node* root, void* to_find,
-	int (*key)(calendar_node*, void*)) {
+calendar_node* key_search(calendar_node* root, void* to_find,
+	int (*key)(const calendar_node*, void*)) {
 	// stop condition
 	if (root == NULL) { return NULL; }
 
@@ -80,7 +80,7 @@ calendar_node* key_search(const calendar_node* root, void* to_find,
 // works the same as key search but adds all the results to a list
 static int full_search_helper(calendar_node* root, void* to_find,
 	calendar_node*** result, int index,
-	int (*key)(calendar_node*, void*)) {
+	int (*key)(const calendar_node*, void*)) {
 	// stop condition
 	if (root == NULL) { return index; }
 
@@ -111,7 +111,7 @@ static int full_search_helper(calendar_node* root, void* to_find,
 // returns number of found elements
 int full_key_search(calendar_node* root, void* to_find,
 	calendar_node*** result,
-	int (*key)(calendar_node*, void*)) {
+	int (*key)(const calendar_node*, void*)) {
 	// making a dynamic list for the results
 	*result = malloc(sizeof(calendar_node*));
 	if (*result == NULL) { exit(-1); }
@@ -120,7 +120,7 @@ int full_key_search(calendar_node* root, void* to_find,
 
 
 // searches for a node inside a specific pathway (year, month, day)
-calendar_node* search_full_date(const calendar_node* root, unsigned short* pathway, unsigned short len) {
+calendar_node* search_full_date(calendar_node* root, const unsigned short* pathway, const unsigned short len) {
 	calendar_node* path = root;
 	// moves trough the calendar using path
 	// if an element in pathway doesn't exist path will be NULL
@@ -211,8 +211,8 @@ void full_add(calendar_node** root, calendar_node* child, int pathway[3]) {
 }
 
 
-static int get_parent_key(calendar_node* root, void* child) {
-	calendar_node* compare = (calendar_node*)child;
+static int get_parent_key(const calendar_node* root, void* child) {
+	const calendar_node* compare = (calendar_node*)child;
 	if (root->siblings && root->siblings->id == compare->id) {
 		return 1;
 	}
@@ -226,7 +226,7 @@ static int get_parent_key(calendar_node* root, void* child) {
 
 
 // function to find the parent of a node
-calendar_node* get_parent(const calendar_node* root, const calendar_node* child) {
+calendar_node* get_parent(calendar_node* root, calendar_node* child) {
 	return key_search(root, child, &get_parent_key);
 }
 
@@ -260,8 +260,8 @@ void free_calendar(calendar_node* root, calendar_node** to_free, calendar_node* 
 }
 
 
-static int check_id_key(calendar_node* root, void* to_find) {
-	calendar_node* compare = (calendar_node*)to_find;
+static int check_id_key(const calendar_node* root, void* to_find) {
+	const calendar_node* compare = (calendar_node*)to_find;
 	if (root->id == compare->id) {
 		return 1;
 	}
@@ -271,9 +271,9 @@ static int check_id_key(calendar_node* root, void* to_find) {
 
 // deletes a calendar_node
 void delete_node(calendar_node** root, calendar_node* node) {
-	calendar_node* to_delete;
 	// checking if the node even exists
-	if (!(to_delete = key_search(*root, node, &check_id_key))) {
+	calendar_node* to_delete = key_search(*root, node, &check_id_key);
+	if (!to_delete) {
 		printf("the node you tried to delete doesn't exist in the calendar\n");
 		return;
 	}
@@ -399,7 +399,7 @@ void export_event_extension(const event_extension* event) {
 
 
 // helper function to turn text into numbers
-static int convert_to_int(char* string) {
+static int convert_to_int(const char* string) {
 	int number;
 	sscanf(string, "%d", &number);
 	return number;
@@ -498,7 +498,7 @@ event_extension* import_event_extension() {
 
 
 // this makes comparisons much easier
-static int date_to_int(char* date) {
+static int date_to_int(const char* date) {
 	int day, month, year;
 	sscanf(date, "%d/%d/%d", &day, &month, &year);
 	return year * 10000 + month * 100 + day;
@@ -506,7 +506,7 @@ static int date_to_int(char* date) {
 
 
 // this makes comparisons much easier
-static int time_to_int(char* time) {
+static int time_to_int(const char* time) {
 	int hours, minutes;
 	sscanf(time, "%d:%d", &hours, &minutes);
 	return hours * 60 + minutes;
@@ -514,14 +514,14 @@ static int time_to_int(char* time) {
 
 
 // converts the date into an int and check if it's within range
-static int date_range_key(calendar_node* root, void* parameters) {
+static int date_range_key(const calendar_node* root, void* parameters) {
 	// {min_date_value, max_date_value}
-	int* dates = (int*)parameters;
+	const int* dates = (int*)parameters;
 
 	// if it has an event extension
 	if (root->data) {
 		// checking if date is in range
-		int root_value = date_to_int(root->data->date);
+		const int root_value = date_to_int(root->data->date);
 
 		if (root_value >= dates[0] && root_value <= dates[1]) {
 			return 1;
@@ -599,7 +599,7 @@ void delete_range(calendar_node** root) {
 
 	// searching for all the nodes with a date in this range
 	calendar_node** result = NULL;
-	int n_results = full_key_search(
+	const int n_results = full_key_search(
 		*root, parameters,
 		&result, &date_range_key
 	);
@@ -633,7 +633,7 @@ void print_range(calendar_node** root) {
 
 	// searching for all the nodes with a date in this range
 	calendar_node** result = NULL;
-	int n_results = full_key_search(
+	const int n_results = full_key_search(
 		*root, parameters,
 		&result, &date_range_key
 	);
@@ -666,7 +666,7 @@ void print_range(calendar_node** root) {
 }
 
 
-static int is_event_key(calendar_node* root, void* nothing) {
+static int is_event_key(const calendar_node* root, void* nothing) {
 	if (root->data) {
 		return 1;
 	}
@@ -677,7 +677,7 @@ static int is_event_key(calendar_node* root, void* nothing) {
 // prints all the events in a calendar
 void print_full_calendar(calendar_node** root) {
 	calendar_node** result = NULL;
-	int n_results = full_key_search(
+	const int n_results = full_key_search(
 		*root, NULL,
 		&result, &is_event_key
 	);
@@ -717,14 +717,14 @@ static int minimum(int a, int b) {
 
 // compares the charakters of the search string with the title of the event
 // if more then half of the charakters match, it's a true match
-static int textual_match_key(calendar_node* root, void* text) {
-	char* compare = (char*)text;
+static int textual_match_key(const calendar_node* root, void* text) {
+	const char* compare = (char*)text;
 	if (root->data) {
 		int matches = 0;
 		char* root_text = root->data->title;
 
 		// iterate over the strings and check if the chars are the same
-		int limit = minimum(strlen(root_text), strlen(compare));
+		const int limit = minimum(strlen(root_text), strlen(compare));
 		for (size_t i = 0; i < limit; i++) {
 			if (root_text[i] == compare[i]) {
 				matches++;
@@ -745,7 +745,7 @@ void search_textual_match(calendar_node** root) {
 	get_text(buffer, BUFFER_SIZE, "zoekstring: ");
 
 	calendar_node** result = NULL;
-	int n_results = full_key_search(
+	const int n_results = full_key_search(
 		*root, buffer,
 		&result, &textual_match_key
 	);

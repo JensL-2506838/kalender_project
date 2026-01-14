@@ -1,4 +1,5 @@
 #include "fileIO.h"
+#include <string.h>
 #include <stdio.h>
 
 
@@ -29,7 +30,7 @@ void end_element() {
 }
 
 
-void write_var(char* var) {
+void write_var(const char* var) {
 	if (!strcmp(filemode, "w")) {
 		fputs(var, filepath);
 		fputs("\n", filepath);

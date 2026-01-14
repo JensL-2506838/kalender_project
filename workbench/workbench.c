@@ -6,7 +6,7 @@
 int main(void) {
 	calendar_node* root = import_full_calendar("C:\\Users\\jensl\\OneDrive\\Desktop\\input.txt");
 
-	//plan_appointment(&root);
+	plan_appointment(&root);
 	//delete_range(&root);
 	//print_range(&root);
 	print_full_calendar(&root);
