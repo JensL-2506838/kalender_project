@@ -339,7 +339,7 @@ void free_event_extension(event_extension* event, calendar_node* parent) {
 
 
 // writes a calendar to a specified file
-void export_full_calendar(const calendar_node* root, char* path) {
+void export_full_calendar(const calendar_node* root, const char* path) {
 	open_filepath(path, "w");
 	export_calendar_node(root);
 	close_filepath();
@@ -427,7 +427,7 @@ static char* strip(char* string) {
 
 
 // reads the specified file and makes the full calendar
-calendar_node* import_full_calendar(char* path) {
+calendar_node* import_full_calendar(const char* path) {
 	open_filepath(path, "r");
 	calendar_node* root = import_calendar_node();
 	close_filepath();
@@ -710,7 +710,7 @@ void print_full_calendar(calendar_node** root) {
 }
 
 
-static int minimum(int a, int b) {
+static size_t minimum(const size_t a, const size_t b) {
 	return a < b ? a : b;
 }
 
@@ -724,7 +724,7 @@ static int textual_match_key(const calendar_node* root, void* text) {
 		char* root_text = root->data->title;
 
 		// iterate over the strings and check if the chars are the same
-		const int limit = minimum(strlen(root_text), strlen(compare));
+		const size_t limit = minimum(strlen(root_text), strlen(compare));
 		for (size_t i = 0; i < limit; i++) {
 			if (root_text[i] == compare[i]) {
 				matches++;

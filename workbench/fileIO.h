@@ -2,7 +2,7 @@
 #define fileIO
 
 
-void open_filepath(char* path, char* mode);
+void open_filepath(const char* path, char* mode);
 void close_filepath();
 void start_element();
 void end_element();

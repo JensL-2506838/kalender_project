@@ -89,12 +89,12 @@ void init_event_extension(event_extension** event, char date[11], char start[6],
 void free_event_extension(event_extension* event, calendar_node* parent);
 
 
-void export_full_calendar(const calendar_node* root, char* path);
+void export_full_calendar(const calendar_node* root, const char* path);
 void export_calendar_node(const calendar_node* root);
 void export_event_extension(const event_extension* event);
 
 
-calendar_node* import_full_calendar(char* path);
+calendar_node* import_full_calendar(const char* path);
 calendar_node* import_calendar_node();
 event_extension* import_event_extension();
 

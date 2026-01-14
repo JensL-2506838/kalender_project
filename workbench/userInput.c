@@ -5,7 +5,7 @@
 
 
 // strips \n from the string
-static char* strip(char* string, size_t size) {
+static char* strip(char* string, const size_t size) {
 	char buffer[MAX_BUFFER] = "";
 	size_t index = 0;		// to keep track of where to add to the buffer
 	// loop trough the string and compare each charakter
@@ -24,7 +24,7 @@ static char* strip(char* string, size_t size) {
 }
 
 
-static handle_overflow(char* buffer) {
+static void handle_overflow(const char* buffer) {
 	// if the last char of the input isn't \n
 	// it's likely an overflow
 	// then we need to remove whatever is left in the stdin
@@ -36,7 +36,7 @@ static handle_overflow(char* buffer) {
 
 
 // asks the user for a date in the format (DD/MM/YYYY)
-char* get_date(char* buffer, size_t size, char* message) {
+char* get_date(char* buffer, const int size, const char* message) {
 	while (1) {
 		printf("%s", message);
 
@@ -56,7 +56,7 @@ char* get_date(char* buffer, size_t size, char* message) {
 		strip(buffer, size);
 
 		// checking if nothing is added behind the date
-		char last_char = buffer[strlen(buffer) - 1];
+		const char last_char = buffer[strlen(buffer) - 1];
 		if (!isdigit(last_char)) {
 			printf("Datum moet dit formaat hebben: DD/MM/YYYY\n");
 			continue;
@@ -82,9 +82,8 @@ char* get_date(char* buffer, size_t size, char* message) {
 }
 
 
-
 // asks for a time of the format (HH:MM)
-char* get_time(char* buffer, size_t size, char* message) {
+char* get_time(char* buffer, const int size, const char* message) {
 	while (1) {
 		printf("%s", message);
 
@@ -104,7 +103,7 @@ char* get_time(char* buffer, size_t size, char* message) {
 		strip(buffer, size);
 
 		// checking if nothing is added behind the time
-		char last_char = buffer[strlen(buffer) - 1];
+		const char last_char = buffer[strlen(buffer) - 1];
 		if (!isdigit(last_char)) {
 			printf("Tijd moet dit formaat hebben: HH:MM\n");
 			continue;
@@ -128,10 +127,9 @@ char* get_time(char* buffer, size_t size, char* message) {
 	}
 }
 
- 
 
 // just gets a piece of text from the user
-char* get_text(char* buffer, size_t size, const char* message) {
+char* get_text(char* buffer, const int size, const char* message) {
 	printf("%s", message);
 
 	if (fgets(buffer, size, stdin)) {

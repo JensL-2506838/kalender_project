@@ -5,7 +5,7 @@
 
 static FILE* filepath = NULL;
 static char* filemode = "r";
-void open_filepath(char* path, char* mode) {
+void open_filepath(const char* path, char* mode) {
 	filepath = fopen(path, mode);
 	filemode = mode;
 }
