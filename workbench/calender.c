@@ -235,6 +235,11 @@ calendar_node* get_parent(calendar_node* root, calendar_node* child) {
 void free_calendar(calendar_node* root, calendar_node** to_free, calendar_node* parent) {
 	calendar_node* cur_node = *to_free;
 
+	// stopping in to_free is NULL
+	if (!cur_node) {
+		return;
+	}
+
 	// moving trough the tree
 	if (cur_node->siblings) {
 		free_calendar(root, &cur_node->siblings, cur_node);
@@ -400,8 +405,8 @@ void export_event_extension(const event_extension* event) {
 static int convert_to_int(const char* string) {
 	int number;
 	if (sscanf(string, "%d", &number) != 1) {
-		printf("string is geen integer");
-		return 0;
+		printf("string is geen integer\n");
+		return -1;
 	}
 	return number;
 }
@@ -455,8 +460,17 @@ calendar_node* import_calendar_node() {
 	calendar_node* imported = NULL;
 	init_calendar(&imported, 0, 0);
 
-	imported->date_element = convert_to_int(strip(readline(buffer)));
-	imported->type = convert_to_int(strip(readline(buffer)));
+	// getting the data from the file
+	const int date = convert_to_int(strip(readline(buffer)));
+	const int type = convert_to_int(strip(readline(buffer)));
+
+	// checking for errors
+	if (date == -1 || type == -1) {
+		return NULL;
+	}
+
+	imported->date_element = date;
+	imported->type = type;
 
 	imported->data = import_event_extension();
 	imported->siblings = import_calendar_node();
@@ -800,8 +814,12 @@ void user_import_calendar(calendar_node** root) {
 	char buffer[BUFFER_SIZE];
 	get_text(buffer, BUFFER_SIZE, "geef een pad: ");
 
-	calendar_node* to_add = import_full_calendar(buffer);
-	*root = to_add;
+	// if import is succesfull replace root
+	calendar_node* new_kalendar = import_full_calendar(buffer);
+	if (new_kalendar) {
+		free_calendar(*root, root, NULL);
+		*root = new_kalendar;
+	}
 }
 
 

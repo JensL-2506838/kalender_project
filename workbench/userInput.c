@@ -131,15 +131,18 @@ char* get_time(char* buffer, const int size, const char* message) {
 
 // just gets a piece of text from the user
 char* get_text(char* buffer, const int size, const char* message) {
-	printf("%s", message);
+	// keep asking if input incorrect
+	while (1) {
+		printf("%s", message);
 
-	if (fgets(buffer, size, stdin)) {
-		handle_overflow(buffer);
-		strip(buffer, size);
-	}
-	else {
+		// if correct input break out of loop
+		if (fgets(buffer, size, stdin)) {
+			handle_overflow(buffer);
+			strip(buffer, size);
+			break;
+		}
+
 		printf("an error occured while taking the input\n");
-		return get_text(buffer, size, message);
 	}
 
 	return buffer;
