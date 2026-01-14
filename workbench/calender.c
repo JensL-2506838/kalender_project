@@ -376,8 +376,6 @@ void export_calendar_node(const calendar_node* root) {
 
 // writes an event to a specified file
 void export_event_extension(const event_extension* event) {
-	char buffer[300];
-
 	if (event == NULL) {
 		write_var("NULL");
 		return;
@@ -401,7 +399,10 @@ void export_event_extension(const event_extension* event) {
 // helper function to turn text into numbers
 static int convert_to_int(const char* string) {
 	int number;
-	sscanf(string, "%d", &number);
+	if (sscanf(string, "%d", &number) != 1) {
+		printf("string is geen integer");
+		return 0;
+	}
 	return number;
 }
 
@@ -506,7 +507,10 @@ event_extension* import_event_extension() {
 // this makes comparisons much easier
 static int date_to_int(const char* date) {
 	int day, month, year;
-	sscanf(date, "%d/%d/%d", &day, &month, &year);
+	if (sscanf(date, "%d/%d/%d", &day, &month, &year) != 3) {
+		printf("datum is niet juist geformateerd\n");
+		return 0;
+	}
 	return year * 10000 + month * 100 + day;
 }
 
@@ -514,7 +518,10 @@ static int date_to_int(const char* date) {
 // this makes comparisons much easier
 static int time_to_int(const char* time) {
 	int hours, minutes;
-	sscanf(time, "%d:%d", &hours, &minutes);
+	if (sscanf(time, "%d:%d", &hours, &minutes) != 2) {
+		printf("tijd is niet juist geformateerd\n");
+		return 0;
+	}
 	return hours * 60 + minutes;
 }
 
