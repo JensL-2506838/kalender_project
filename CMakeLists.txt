@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 11)
 
 add_executable(kalender
         workbench/calender.c
-        workbench/userinput.c
+        workbench/userInput.c
         workbench/workbench.c
         workbench/fileIO.c
         workbench/main.c
