@@ -1,0 +1,148 @@
+#include "userInput.h"
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+
+// strips \n from the string
+static char* strip(char* string, size_t size) {
+	char buffer[MAX_BUFFER] = "";
+	size_t index = 0;		// to keep track of where to add to the buffer
+	// loop trough the string and compare each charakter
+	for (size_t i = 0; i < strlen(string); i++) {
+		if (string[i] != '\n') {
+			// add to the buffer and (post) increment the index
+			buffer[index++] = string[i];
+		}
+	}
+
+	// put result back into the string
+	buffer[index] = '\0';
+	strncpy(string, buffer, size);
+
+	return string;
+}
+
+
+static handle_overflow(char* buffer) {
+	// if the last char of the input isn't \n
+	// it's likely an overflow
+	// then we need to remove whatever is left in the stdin
+	if (buffer[strlen(buffer) - 1] != '\n') {
+		// keep reading till nothing is left
+		while (getchar() != '\n') { NULL; }
+	}
+}
+
+
+// asks the user for a date in the format (DD/MM/YYYY)
+char* get_date(char* buffer, size_t size, char* message) {
+	while (1) {
+		printf("%s", message);
+
+		// if error ask again
+		if (!fgets(buffer, size, stdin)) {
+			continue;
+		}
+
+		handle_overflow(buffer);
+
+		// if input is empty ask again
+		if (!strcmp(buffer, "\n")) {
+			continue;
+		}
+
+		// get rid of the \n
+		strip(buffer, size);
+
+		// checking if nothing is added behind the date
+		char last_char = buffer[strlen(buffer) - 1];
+		if (!isdigit(last_char)) {
+			printf("Datum moet dit formaat hebben: DD/MM/YYYY\n");
+			continue;
+		}
+
+		// check the format and extract the data
+		int day, month, year;
+		if (sscanf(buffer, "%d/%d/%d", &day, &month, &year) != 3) {
+			printf("Datum moet dit formaat hebben: DD/MM/YYYY\n");
+			continue;
+		}
+
+		// check if date is valid
+		if (month < 1 || month > 12 ||
+			day < 1 || day > days_in_month[month - 1] ||
+			year < 0 || year > 9999) {
+			printf("Datum moet bestaan\n");
+			continue;
+		}
+
+		return buffer;
+	}
+}
+
+
+
+// asks for a time of the format (HH:MM)
+char* get_time(char* buffer, size_t size, char* message) {
+	while (1) {
+		printf("%s", message);
+
+		// if error ask again
+		if (!fgets(buffer, size, stdin)) {
+			continue;
+		}
+
+		handle_overflow(buffer);
+
+		// if input is empty ask again
+		if (!strcmp(buffer, "\n")) {
+			continue;
+		}
+
+		// get rid of the \n
+		strip(buffer, size);
+
+		// checking if nothing is added behind the time
+		char last_char = buffer[strlen(buffer) - 1];
+		if (!isdigit(last_char)) {
+			printf("Tijd moet dit formaat hebben: HH:MM\n");
+			continue;
+		}
+
+		// check the format and extract the data
+		int hour, minute;
+		if (sscanf(buffer, "%d:%d", &hour, &minute) != 2) {
+			printf("Tijd moet dit formaat hebben: HH:MM\n");
+			continue;
+		}
+
+		// check if the time is valid
+		if (hour < 0 || hour >= 24 ||
+			minute < 0 || minute >= 60) {
+			printf("Tijd moet bestaan\n");
+			continue;
+		}
+
+		return buffer;
+	}
+}
+
+ 
+
+// just gets a piece of text from the user
+char* get_text(char* buffer, size_t size, const char* message) {
+	printf("%s", message);
+
+	if (fgets(buffer, size, stdin)) {
+		handle_overflow(buffer);
+		strip(buffer, size);
+	}
+	else {
+		printf("an error occured while taking the input\n");
+		return get_text(buffer, size, message);
+	}
+
+	return buffer;
+}
+
