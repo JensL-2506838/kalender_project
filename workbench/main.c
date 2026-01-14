@@ -49,12 +49,11 @@ int main(void) {
                 break;
             case 7:
                 // adds the imported calendar to calendar that already exists
-                calendar_node* to_add = import_full_calendar("C:\\Users\\jensl\\OneDrive\\Desktop\\input.txt");
-                add_sibling(&to_add, root, NULL);
-                root = to_add;
-                to_add = NULL;
+                user_import_calendar(&root);
+                break;
             case 8:
-                export_full_calendar(root, "C:\\Users\\jensl\\OneDrive\\Desktop\\output.txt");
+                user_export_calendar(&root);
+                break;
             default:
                 printf("commando bestaat niet\n");
                 break;

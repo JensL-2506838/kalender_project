@@ -105,6 +105,8 @@ void delete_range(calendar_node** root);
 void print_range(calendar_node** root);
 void print_full_calendar(calendar_node** root);
 void search_textual_match(calendar_node** root);
+void user_import_calendar(calendar_node** root);
+void user_export_calendar(calendar_node** root);
 
 
 #endif

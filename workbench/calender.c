@@ -429,6 +429,12 @@ static char* strip(char* string) {
 // reads the specified file and makes the full calendar
 calendar_node* import_full_calendar(const char* path) {
 	open_filepath(path, "r");
+
+	// checking if the path is valid
+	if (!path) {
+		return NULL;
+	}
+
 	calendar_node* root = import_calendar_node();
 	close_filepath();
 
@@ -721,7 +727,7 @@ static int textual_match_key(const calendar_node* root, void* text) {
 	const char* compare = (char*)text;
 	if (root->data) {
 		int matches = 0;
-		char* root_text = root->data->title;
+		const char* root_text = root->data->title;
 
 		// iterate over the strings and check if the chars are the same
 		const size_t limit = minimum(strlen(root_text), strlen(compare));
@@ -775,4 +781,46 @@ void search_textual_match(calendar_node** root) {
 	// contents of result don't need to be freed since they
 	// are still in the tree
 	free(result);
+}
+
+
+// turns a \ into \\ in order to use the path in string form
+static void fix_path(char* path) {
+	char buffer[BUFFER_SIZE];
+	int index = 0;		// to track where to add in the buffer
+	for (size_t i = 0; i < strlen(path); i++) {
+		buffer[index++] = path[i];
+
+		// if we find a backslash we double it
+		if (path[i] == '\\') {
+			buffer[index++] = path[i];
+		}
+	}
+
+	strcpy(path, buffer);
+}
+
+
+// imports a calendar given by the user
+void user_import_calendar(calendar_node** root) {
+	// getting the path
+	char buffer[BUFFER_SIZE];
+	get_text(buffer, BUFFER_SIZE, "geef een pad: ");
+
+	fix_path(buffer);
+
+	calendar_node* to_add = import_full_calendar(buffer);
+	*root = to_add;
+}
+
+
+// exports a calendar given by the user
+void user_export_calendar(calendar_node** root) {
+	// getting the path
+	char buffer[BUFFER_SIZE];
+	get_text(buffer, BUFFER_SIZE, "geef een pad: ");
+
+	fix_path(buffer);
+
+	export_full_calendar(*root, buffer);
 }
