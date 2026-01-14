@@ -144,3 +144,37 @@ char* get_text(char* buffer, const int size, const char* message) {
 	return buffer;
 }
 
+
+// asks for a time of the format (HH:MM)
+int get_num(const char* message) {
+	char buffer[MAX_BUFFER];
+
+	while (1) {
+		printf("%s", message);
+
+		// if error ask again
+		if (!fgets(buffer, MAX_BUFFER, stdin)) {
+			continue;
+		}
+
+		handle_overflow(buffer);
+
+		// if input is empty ask again
+		if (!strcmp(buffer, "\n")) {
+			continue;
+		}
+
+		// get rid of the \n
+		strip(buffer, MAX_BUFFER);
+
+		// converting to int
+		int result;
+		if (sscanf(buffer, "%d", &result) != 1) {
+			printf("input moet een nummer zijn\n");
+			continue;
+		}
+
+		return result;
+	}
+}
+

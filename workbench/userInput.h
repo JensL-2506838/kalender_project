@@ -27,5 +27,7 @@ char* get_time(char* buffer, int size, const char* message);
 // just gets a piece of text from the user
 char* get_text(char* buffer, int size, const char* message);
 
+// asks for a time of the format (HH:MM)
+int get_num(const char* message);
 
 #endif

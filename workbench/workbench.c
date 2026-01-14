@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "calender.h"
 
-
+/*
 int main(void) {
 	calendar_node* root = import_full_calendar("C:\\Users\\jensl\\OneDrive\\Desktop\\input.txt");
 
@@ -22,3 +22,4 @@ int main(void) {
 
 	return 0;
 }
+*/
