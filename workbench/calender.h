@@ -37,10 +37,10 @@ typedef struct calendar_node {
 
 
 // function to make the id's
-int generate_id();
+unsigned int generate_id();
 
 
-void init_calendar(const calendar_node** root, unsigned short date, unsigned short type);
+void init_calendar(calendar_node** root, unsigned short date, unsigned short type);
 
 
 // searches for an element with a specific date and type
@@ -49,14 +49,14 @@ calendar_node* search_date_element(const calendar_node* root, unsigned short dat
 // search function that searches for criteria defined by the user.
 // user must return 1 for found and 0 for not found
 calendar_node* key_search(const calendar_node* root, void* to_find,
-						int (*key)(const calendar_node*, void*));
+						int (*key)(calendar_node*, void*));
 
 
 // like key_search but this one makes a dynamic list of all the results
 // returns number of found elements
 int full_key_search(calendar_node* root, void* to_find,
 	calendar_node*** result,
-	int (*key)(const calendar_node*, void*));
+	int (*key)(calendar_node*, void*));
 
 
 // searches for a node inside a specific pathway (year, month, day)
@@ -68,7 +68,7 @@ void add_sibling(calendar_node** root, calendar_node* child, calendar_node* prev
 
 // adds an element to the calendar, but also adds the nodes that lead
 // to that element if they don't exist already
-void full_add(calendar_node** root, calendar_node* child, unsigned short pathway[3]);
+void full_add(calendar_node** root, calendar_node* child, int pathway[3]);
 
 
 // function to find the parent of a node

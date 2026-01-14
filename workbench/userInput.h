@@ -26,7 +26,7 @@ char* get_date(char* buffer, size_t size, char* message);
 char* get_time(char* buffer, size_t size, char* message);
 
 // just gets a piece of text from the user
-char* get_text(char* buffer, size_t size, char* message);
+char* get_text(char* buffer, size_t size, const char* message);
 
 
 #endif

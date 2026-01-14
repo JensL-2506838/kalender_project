@@ -10,7 +10,7 @@
 static unsigned int id_counter = 0;
 
 // function to make the id's
-int generate_id() {
+unsigned int generate_id() {
 	// if the id limit is reached, it shuts down
 	if (id_counter == UINT_MAX) {
 		printf("id overflow!\n");
@@ -58,7 +58,7 @@ calendar_node* search_date_element(const calendar_node* root, unsigned short dat
 // search function that searches for criteria defined by the user.
 // user must return 1 for found and 0 for not found
 calendar_node* key_search(const calendar_node* root, void* to_find,
-	int (*key)(const calendar_node*, void*)) {
+	int (*key)(calendar_node*, void*)) {
 	// stop condition
 	if (root == NULL) { return NULL; }
 
@@ -80,7 +80,7 @@ calendar_node* key_search(const calendar_node* root, void* to_find,
 // works the same as key search but adds all the results to a list
 static int full_search_helper(calendar_node* root, void* to_find,
 	calendar_node*** result, int index,
-	int (*key)(const calendar_node*, void*)) {
+	int (*key)(calendar_node*, void*)) {
 	// stop condition
 	if (root == NULL) { return index; }
 
@@ -111,7 +111,7 @@ static int full_search_helper(calendar_node* root, void* to_find,
 // returns number of found elements
 int full_key_search(calendar_node* root, void* to_find,
 	calendar_node*** result,
-	int (*key)(const calendar_node*, void*)) {
+	int (*key)(calendar_node*, void*)) {
 	// making a dynamic list for the results
 	*result = malloc(sizeof(calendar_node*));
 	if (*result == NULL) { exit(-1); }
@@ -172,7 +172,7 @@ void add_sibling(calendar_node** root, calendar_node* child, calendar_node* prev
 // adds an element to the calendar, but also adds the nodes that lead
 // to that element if they don't exist already.
 // pathway is used to get the rigth year, month, etc
-void full_add(calendar_node** root, calendar_node* child, unsigned short pathway[3]) {
+void full_add(calendar_node** root, calendar_node* child, int pathway[3]) {
 	size_t index = 0;
 	calendar_node* next = NULL;
 	calendar_node** path = root;
@@ -211,7 +211,7 @@ void full_add(calendar_node** root, calendar_node* child, unsigned short pathway
 }
 
 
-static int get_parent_key(const calendar_node* root, void* child) {
+static int get_parent_key(calendar_node* root, void* child) {
 	calendar_node* compare = (calendar_node*)child;
 	if (root->siblings && root->siblings->id == compare->id) {
 		return 1;
