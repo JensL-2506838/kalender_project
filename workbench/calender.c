@@ -679,6 +679,7 @@ void print_range(calendar_node** root) {
 }
 
 
+// checks if a node has a data element
 static int is_event_key(const calendar_node* root, void* nothing) {
 	if (root->data) {
 		return 1;
@@ -754,9 +755,11 @@ static int textual_match_key(const calendar_node* root, void* text) {
 
 
 void search_textual_match(calendar_node** root) {
+	// get search string
 	char buffer[BUFFER_SIZE];
 	get_text(buffer, BUFFER_SIZE, "zoekstring: ");
 
+	// search for all the matching titles
 	calendar_node** result = NULL;
 	const int n_results = full_key_search(
 		*root, buffer,
@@ -791,30 +794,11 @@ void search_textual_match(calendar_node** root) {
 }
 
 
-// turns a \ into \\ in order to use the path in string form
-static void fix_path(char* path) {
-	char buffer[BUFFER_SIZE];
-	int index = 0;		// to track where to add in the buffer
-	for (size_t i = 0; i < strlen(path); i++) {
-		buffer[index++] = path[i];
-
-		// if we find a backslash we double it
-		if (path[i] == '\\') {
-			buffer[index++] = path[i];
-		}
-	}
-
-	strcpy(path, buffer);
-}
-
-
 // imports a calendar given by the user
 void user_import_calendar(calendar_node** root) {
 	// getting the path
 	char buffer[BUFFER_SIZE];
 	get_text(buffer, BUFFER_SIZE, "geef een pad: ");
-
-	fix_path(buffer);
 
 	calendar_node* to_add = import_full_calendar(buffer);
 	*root = to_add;
@@ -826,8 +810,6 @@ void user_export_calendar(calendar_node** root) {
 	// getting the path
 	char buffer[BUFFER_SIZE];
 	get_text(buffer, BUFFER_SIZE, "geef een pad: ");
-
-	fix_path(buffer);
 
 	export_full_calendar(*root, buffer);
 }

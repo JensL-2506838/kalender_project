@@ -24,6 +24,7 @@ static char* strip(char* string, const size_t size) {
 }
 
 
+// empties the stdin the buffer has overflowed
 static void handle_overflow(const char* buffer) {
 	// if the last char of the input isn't \n
 	// it's likely an overflow
