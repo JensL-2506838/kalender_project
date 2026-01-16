@@ -353,7 +353,7 @@ void export_full_calendar(const calendar_node* root, const char* path) {
 
 // writes a calendar_node to a specified file
 void export_calendar_node(const calendar_node* root) {
-	char buffer[300];
+	char buffer[BUFFER_SIZE];
 
 	if (root == NULL) {
 		write_var("NULL");
@@ -414,7 +414,7 @@ static int convert_to_int(const char* string) {
 
 // strips \n from the string
 static char* strip(char* string) {
-	char buffer[300] = "";
+	char buffer[BUFFER_SIZE] = "";
 	size_t index = 0;		// to keep track of where to add to the buffer
 	// loop trough the string and compare each charakter
 	for (size_t i = 0; i < strlen(string); i++) {
@@ -450,7 +450,7 @@ calendar_node* import_full_calendar(const char* path) {
 
 // reads the specified file and makes a calendar_node
 calendar_node* import_calendar_node() {
-	char buffer[300];
+	char buffer[BUFFER_SIZE];
 
 	// if there is no data or file is empty
 	if (!readline(buffer) || !strcmp(strip(buffer), "NULL")) {
@@ -484,7 +484,7 @@ calendar_node* import_calendar_node() {
 
 // reads the specified file and makes an event
 event_extension* import_event_extension() {
-	char buffer[300];
+	char buffer[BUFFER_SIZE];
 
 	// if there is no data
 	if (!strcmp(strip(readline(buffer)), "NULL")) {
