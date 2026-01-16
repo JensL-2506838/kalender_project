@@ -343,61 +343,67 @@ void free_event_extension(event_extension* event, calendar_node* parent) {
 }
 
 
+// this makes comparisons much easier
+static int date_to_int(const char* date) {
+	int day, month, year;
+	if (sscanf(date, "%d/%d/%d", &day, &month, &year) != 3) {
+		printf("datum is niet juist geformateerd\n");
+		return 0;
+	}
+	return year * 10000 + month * 100 + day;
+}
+
+
+// this makes comparisons much easier
+static int time_to_int(const char* time) {
+	int hours, minutes;
+	if (sscanf(time, "%d:%d", &hours, &minutes) != 2) {
+		printf("tijd is niet juist geformateerd\n");
+		return 0;
+	}
+	return hours * 60 + minutes;
+}
+
+
+// checks if a node has a data element
+static int is_event_key(const calendar_node* root, void* nothing) {
+	if (root->data) {
+		return 1;
+	}
+	return 0;
+}
+
+
 // writes a calendar to a specified file
-void export_full_calendar(const calendar_node* root, const char* path) {
+void export_full_calendar(calendar_node* root, const char* path) {
 	open_filepath(path, "w");
-	export_calendar_node(root);
+	export_calendar(root);
 	close_filepath();
 }
 
 
-// writes a calendar_node to a specified file
-void export_calendar_node(const calendar_node* root) {
-	char buffer[BUFFER_SIZE];
-
-	if (root == NULL) {
-		write_var("NULL");
-		return;
-	}
-
-	start_element();
-
-	sprintf(buffer, "%d", root->date_element);
-	write_var(buffer);
-
-	// id doesn't get exported because we generate new ones
-
-	sprintf(buffer, "%d", root->type);
-	write_var(buffer);
-
-	export_event_extension(root->data);
-
-	export_calendar_node(root->siblings);
-	export_calendar_node(root->children);
-
-	end_element();
-}
-
-
 // writes an event to a specified file
-void export_event_extension(const event_extension* event) {
-	if (event == NULL) {
-		write_var("NULL");
-		return;
+void export_calendar(calendar_node* root) {
+	calendar_node** result = NULL;
+	const int n_resultaten = full_key_search(root, NULL, &result, &is_event_key);
+
+	for (size_t i = 0; i < n_resultaten; i++) {
+		const event_extension* event = result[i]->data;
+
+		start_element();
+
+		// id doesn't get exported because we generate new ones
+
+		write_var(event->date);
+		write_var(event->start);
+		write_var(event->end);
+		write_var(event->title);
+		write_var(event->description);
+		write_var(event->location);
+
+		end_element();
 	}
-
-	start_element();
-
-	// id doesn't get exported because we generate new ones
-
-	write_var(event->date);
-	write_var(event->start);
-	write_var(event->end);
-	write_var(event->title);
-	write_var(event->description);
-	write_var(event->location);
-
-	end_element();
+	write_var("{end}");
 }
 
 
@@ -433,7 +439,7 @@ static char* strip(char* string) {
 
 
 // reads the specified file and makes the full calendar
-calendar_node* import_full_calendar(const char* path) {
+calendar_node* import_full_calendar(calendar_node** root, const char* path) {
 	open_filepath(path, "r");
 
 	// checking if the path is valid
@@ -441,54 +447,21 @@ calendar_node* import_full_calendar(const char* path) {
 		return NULL;
 	}
 
-	calendar_node* root = import_calendar_node();
+	//calendar_node* root = import_calendar_node();
+	import_calendar(root);
 	close_filepath();
 
-	return root;
-}
-
-
-// reads the specified file and makes a calendar_node
-calendar_node* import_calendar_node() {
-	char buffer[BUFFER_SIZE];
-
-	// if there is no data or file is empty
-	if (!readline(buffer) || !strcmp(strip(buffer), "NULL")) {
-		return NULL;
-	}
-
-	calendar_node* imported = NULL;
-	init_calendar(&imported, 0, 0);
-
-	// getting the data from the file
-	const int date = convert_to_int(strip(readline(buffer)));
-	const int type = convert_to_int(strip(readline(buffer)));
-
-	// checking for errors
-	if (date == -1 || type == -1) {
-		return NULL;
-	}
-
-	imported->date_element = date;
-	imported->type = type;
-
-	imported->data = import_event_extension();
-	imported->siblings = import_calendar_node();
-	imported->children = import_calendar_node();
-
-	readline(buffer);		// to read the closing bracket
-
-	return imported;
+	return *root;
 }
 
 
 // reads the specified file and makes an event
-event_extension* import_event_extension() {
+void import_calendar(calendar_node** root) {
 	char buffer[BUFFER_SIZE];
 
 	// if there is no data
-	if (!strcmp(strip(readline(buffer)), "NULL")) {
-		return NULL;
+	if (!strcmp(strip(readline(buffer)), "{end}")) {
+		return;
 	}
 
 	event_extension* imported = NULL;
@@ -514,29 +487,19 @@ event_extension* import_event_extension() {
 
 	readline(buffer);		// to read the closing bracket
 
-	return imported;
-}
+	// the date element is calculated using starting time
+	// this way it is sorted earliest to latest
+	calendar_node* to_add = NULL;
+	init_calendar(&to_add, time_to_int(imported->start), EVENT);
+	to_add->data = imported;
 
+	// the pathway contains the date values leading to the event
+	int pathway[3];
+	sscanf(imported->date, "%d/%d/%d", &pathway[2], &pathway[1], &pathway[0]);
+	pathway[1] -= 1;	// to get the rigth index for months
+	full_add(root, to_add, pathway);
 
-// this makes comparisons much easier
-static int date_to_int(const char* date) {
-	int day, month, year;
-	if (sscanf(date, "%d/%d/%d", &day, &month, &year) != 3) {
-		printf("datum is niet juist geformateerd\n");
-		return 0;
-	}
-	return year * 10000 + month * 100 + day;
-}
-
-
-// this makes comparisons much easier
-static int time_to_int(const char* time) {
-	int hours, minutes;
-	if (sscanf(time, "%d:%d", &hours, &minutes) != 2) {
-		printf("tijd is niet juist geformateerd\n");
-		return 0;
-	}
-	return hours * 60 + minutes;
+	import_calendar(root);
 }
 
 
@@ -693,15 +656,6 @@ void print_range(calendar_node** root) {
 }
 
 
-// checks if a node has a data element
-static int is_event_key(const calendar_node* root, void* nothing) {
-	if (root->data) {
-		return 1;
-	}
-	return 0;
-}
-
-
 // prints all the events in a calendar
 void print_full_calendar(calendar_node** root) {
 	calendar_node** result = NULL;
@@ -815,11 +769,12 @@ void user_import_calendar(calendar_node** root) {
 	get_text(buffer, BUFFER_SIZE, "geef een pad: ");
 
 	// if import is succesfull replace root
-	calendar_node* new_kalendar = import_full_calendar(buffer);
-	if (new_kalendar) {
-		free_calendar(*root, root, NULL);
-		*root = new_kalendar;
-	}
+	//calendar_node* new_kalendar = import_full_calendar(buffer);
+	//if (new_kalendar) {
+	//	free_calendar(*root, root, NULL);
+	//	*root = new_kalendar;
+	//}
+	import_full_calendar(root, buffer);
 }
 
 

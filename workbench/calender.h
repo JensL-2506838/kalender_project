@@ -89,14 +89,12 @@ void init_event_extension(event_extension** event, char date[11], char start[6],
 void free_event_extension(event_extension* event, calendar_node* parent);
 
 
-void export_full_calendar(const calendar_node* root, const char* path);
+void export_full_calendar(calendar_node* root, const char* path);
 void export_calendar_node(const calendar_node* root);
-void export_event_extension(const event_extension* event);
 
 
-calendar_node* import_full_calendar(const char* path);
+calendar_node* import_full_calendar(calendar_node** root, const char* path);
 calendar_node* import_calendar_node();
-event_extension* import_event_extension();
 
 
 // integrates the functions defined above to interact with the user
@@ -107,6 +105,8 @@ void print_full_calendar(calendar_node** root);
 void search_textual_match(calendar_node** root);
 void user_import_calendar(calendar_node** root);
 void user_export_calendar(calendar_node** root);
+void import_calendar(calendar_node** root);
+void export_calendar(calendar_node* root);
 
 
 #endif
