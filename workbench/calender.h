@@ -107,6 +107,7 @@ void user_import_calendar(calendar_node** root);
 void user_export_calendar(calendar_node** root);
 void import_calendar(calendar_node** root);
 void export_calendar(calendar_node* root);
+void print_event(const event_extension* event);
 
 
 #endif

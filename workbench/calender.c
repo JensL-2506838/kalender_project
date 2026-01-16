@@ -211,6 +211,7 @@ void full_add(calendar_node** root, calendar_node* child, int pathway[3]) {
 }
 
 
+// finds the parent of a child node
 static int get_parent_key(const calendar_node* root, void* child) {
 	const calendar_node* compare = (calendar_node*)child;
 	if (root->siblings && root->siblings->id == compare->id) {
@@ -265,6 +266,7 @@ void free_calendar(calendar_node* root, calendar_node** to_free, calendar_node* 
 }
 
 
+// finds a node with a specific id
 static int check_id_key(const calendar_node* root, void* to_find) {
 	const calendar_node* compare = (calendar_node*)to_find;
 	if (root->id == compare->id) {
@@ -322,10 +324,12 @@ void init_event_extension(event_extension** event, char date[11], char start[6],
 	(*event)->description = (char*)malloc(sizeof(char) * MAX_DESCRIPTION);
 	(*event)->location = (char*)malloc(sizeof(char) * MAX_LOCATION);
 
+	// cheching for errors
 	if (!(*event)->title || !(*event)->description || !(*event)->location) {
 		exit(-1);
 	}
 
+	// defining some default values
 	strcpy((*event)->title, "no title");
 	strcpy((*event)->description, "no description");
 	strcpy((*event)->location, "no location");
@@ -382,12 +386,14 @@ void export_full_calendar(calendar_node* root, const char* path) {
 }
 
 
-// writes an event to a specified file
+// writes all the events in a calendar to a file
 void export_calendar(calendar_node* root) {
+	// getting all events
 	calendar_node** result = NULL;
-	const int n_resultaten = full_key_search(root, NULL, &result, &is_event_key);
+	const int n_results = full_key_search(root, NULL, &result, &is_event_key);
 
-	for (size_t i = 0; i < n_resultaten; i++) {
+	// writing all events
+	for (size_t i = 0; i < n_results; i++) {
 		const event_extension* event = result[i]->data;
 
 		start_element();
@@ -403,18 +409,7 @@ void export_calendar(calendar_node* root) {
 
 		end_element();
 	}
-	write_var("{end}");
-}
-
-
-// helper function to turn text into numbers
-static int convert_to_int(const char* string) {
-	int number;
-	if (sscanf(string, "%d", &number) != 1) {
-		printf("string is geen integer\n");
-		return -1;
-	}
-	return number;
+	write_var("{end}");		// to specify the end of the file
 }
 
 
@@ -447,7 +442,6 @@ calendar_node* import_full_calendar(calendar_node** root, const char* path) {
 		return NULL;
 	}
 
-	//calendar_node* root = import_calendar_node();
 	import_calendar(root);
 	close_filepath();
 
@@ -455,15 +449,16 @@ calendar_node* import_full_calendar(calendar_node** root, const char* path) {
 }
 
 
-// reads the specified file and makes an event
+// reads the specified file and adds all events to the root
 void import_calendar(calendar_node** root) {
 	char buffer[BUFFER_SIZE];
 
-	// if there is no data
+	// checking for EOF
 	if (!strcmp(strip(readline(buffer)), "{end}")) {
 		return;
 	}
 
+	// making the event
 	event_extension* imported = NULL;
 	init_event_extension(&imported, "", "", "");
 
@@ -497,8 +492,10 @@ void import_calendar(calendar_node** root) {
 	int pathway[3];
 	sscanf(imported->date, "%d/%d/%d", &pathway[2], &pathway[1], &pathway[0]);
 	pathway[1] -= 1;	// to get the rigth index for months
+	// full_add needs to be used to avoid merging conflicts with the already existing calendar
 	full_add(root, to_add, pathway);
 
+	// recursivly going for the other events
 	import_calendar(root);
 }
 
@@ -522,6 +519,7 @@ static int date_range_key(const calendar_node* root, void* parameters) {
 }
 
 
+// asks the user to make an event and ads it to the root
 void plan_appointment(calendar_node** root) {
 	char buffer[BUFFER_SIZE];
 	char date[11], start[6], end[6];
@@ -540,6 +538,8 @@ void plan_appointment(calendar_node** root) {
 	event_extension* event = NULL;
 	init_event_extension(&event, date, start, end);
 
+	// more user input
+	// when the user doesn't type anything, default values are used
 	get_text(buffer, BUFFER_SIZE, "geef een titel: ");
 	if (strcmp(buffer, "")) {
 		strncpy(event->title, buffer, MAX_TITLE);
@@ -594,12 +594,36 @@ void delete_range(calendar_node** root) {
 		&result, &date_range_key
 	);
 
+	// deleting the found nodes
 	for (size_t i = 0; i < n_results; i++) {
 		delete_node(root, result[i]);
 	}
 
 	// contents of result were freed during for loop
 	free(result);
+}
+
+
+// prints an event out
+void print_event(const event_extension* event) {
+	printf("--------------------------------------------------------------------------------------------------\n");
+
+	printf("titel: ");
+	printf("%s\n", event->title);
+
+	printf("datum: ");
+	printf("%s\n", event->date);
+
+	printf("tijd: ");
+	printf("%s - %s\n", event->start, event->end);
+
+	printf("beschrijving: ");
+	printf("%s\n", event->description);
+
+	printf("locatie: ");
+	printf("%s\n", event->location);
+
+	printf("--------------------------------------------------------------------------------------------------\n");
 }
 
 
@@ -616,6 +640,7 @@ void print_range(calendar_node** root) {
 	get_date(buffer, BUFFER_SIZE, "geef een eind datum: ");
 	strcpy(end_date, buffer);
 
+	// these are used to find the events withing range in the full_key_search
 	int parameters[] = {
 		date_to_int(start_date),
 		date_to_int(end_date)
@@ -630,24 +655,7 @@ void print_range(calendar_node** root) {
 
 	// we iterate in reverse in order to put the results chronologicly
 	for (int i = n_results - 1; i >= 0; i--) {
-		printf("--------------------------------------------------------------------------------------------------\n");
-
-		printf("titel: ");
-		printf("%s\n", result[i]->data->title);
-
-		printf("datum: ");
-		printf("%s\n", result[i]->data->date);
-
-		printf("tijd: ");
-		printf("%s - %s\n", result[i]->data->start, result[i]->data->end);
-
-		printf("beschrijving: ");
-		printf("%s\n", result[i]->data->description);
-
-		printf("locatie: ");
-		printf("%s\n", result[i]->data->location);
-
-		printf("--------------------------------------------------------------------------------------------------\n");
+		print_event(result[i]->data);
 	}
 
 	// contents of result don't need to be freed since they
@@ -666,24 +674,7 @@ void print_full_calendar(calendar_node** root) {
 
 	// we iterate in reverse in order to put the results chronologicly
 	for (int i = n_results - 1; i >= 0; i--) {
-		printf("--------------------------------------------------------------------------------------------------\n");
-
-		printf("titel: ");
-		printf("%s\n", result[i]->data->title);
-
-		printf("datum: ");
-		printf("%s\n", result[i]->data->date);
-
-		printf("tijd: ");
-		printf("%s - %s\n", result[i]->data->start, result[i]->data->end);
-
-		printf("beschrijving: ");
-		printf("%s\n", result[i]->data->description);
-
-		printf("locatie: ");
-		printf("%s\n", result[i]->data->location);
-
-		printf("--------------------------------------------------------------------------------------------------\n");
+		print_event(result[i]->data);
 	}
 
 	// contents of result don't need to be freed since they
@@ -713,6 +704,7 @@ static int textual_match_key(const calendar_node* root, void* text) {
 			}
 		}
 
+		// if more then half of charachters match return true
 		if (matches > strlen(compare) / 2) {
 			return 1;
 		}
@@ -722,6 +714,7 @@ static int textual_match_key(const calendar_node* root, void* text) {
 }
 
 
+// looks for all the nodes matching with a user given searchstring and prints them
 void search_textual_match(calendar_node** root) {
 	// get search string
 	char buffer[BUFFER_SIZE];
@@ -736,24 +729,7 @@ void search_textual_match(calendar_node** root) {
 
 	// we iterate in reverse in order to put the results chronologicly
 	for (int i = n_results - 1; i >= 0; i--) {
-		printf("--------------------------------------------------------------------------------------------------\n");
-
-		printf("titel: ");
-		printf("%s\n", result[i]->data->title);
-
-		printf("datum: ");
-		printf("%s\n", result[i]->data->date);
-
-		printf("tijd: ");
-		printf("%s - %s\n", result[i]->data->start, result[i]->data->end);
-
-		printf("beschrijving: ");
-		printf("%s\n", result[i]->data->description);
-
-		printf("locatie: ");
-		printf("%s\n", result[i]->data->location);
-
-		printf("--------------------------------------------------------------------------------------------------\n");
+		print_event(result[i]->data);
 	}
 
 	// contents of result don't need to be freed since they
