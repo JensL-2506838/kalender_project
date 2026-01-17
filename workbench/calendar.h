@@ -1,5 +1,5 @@
-#ifndef CALENDER_H
-#define CALENDER_H
+#ifndef CALENDAR_H
+#define CALENDAR_H
 
 #define MAX_TITLE 100
 #define MAX_DESCRIPTION 300
@@ -8,7 +8,7 @@
 #define BUFFER_SIZE 300
 
 // used to track wich element it is
-enum calender_type {YEAR, MONTH, DAY, EVENT};
+enum calendar_type {YEAR, MONTH, DAY, EVENT};
 enum months {JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULY,
 			AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER};
 

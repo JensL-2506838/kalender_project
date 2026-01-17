@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "calender.h"
+#include "calendar.h"
 #include "userInput.h"
 
 

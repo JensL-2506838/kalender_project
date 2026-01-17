@@ -1,4 +1,4 @@
-#include "calender.h"
+#include "calendar.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -410,6 +410,7 @@ void export_calendar(calendar_node* root) {
 		end_element();
 	}
 	write_var("{end}");		// to specify the end of the file
+	free(result);
 }
 
 
