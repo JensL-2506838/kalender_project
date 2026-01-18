@@ -1,3 +1,4 @@
+// naam: Jens Laurijssen	Nummer: 2506838
 #ifndef userInput
 #define userInput
 #define MAX_BUFFER 1000

@@ -1,3 +1,4 @@
+// naam: Jens Laurijssen	Nummer: 2506838
 #include "userInput.h"
 #include <stdio.h>
 #include <string.h>
